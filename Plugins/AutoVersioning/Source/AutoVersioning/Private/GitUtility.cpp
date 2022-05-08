@@ -1,10 +1,6 @@
 #include "GitUtility.h"
 
-#include <string>
 #include <algorithm>
-#include "CMDLineUtility.h"
-
-using namespace std;
 
 GitUtility::GitUtility(string gitLocation, string repoLocation) : gitLoc(gitLocation), repoLoc(repoLocation)
 {

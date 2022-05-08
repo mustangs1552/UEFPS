@@ -1,9 +1,5 @@
 #include "CMDLineUtility.h"
 
-#include <string>
-
-using namespace std;
-
 string CMDLineUtility::ExecCMD(string cmd)
 {
     char buffer[128];

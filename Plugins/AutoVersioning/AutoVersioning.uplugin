@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "AutoVersioning",
+	"Description": "Automatic versioning for the project.",
+	"Category": "Other",
+	"CreatedBy": "Matthew George",
+	"CreatedByURL": "MattRGeorge.com",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": false,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "AutoVersioning",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	]
+}

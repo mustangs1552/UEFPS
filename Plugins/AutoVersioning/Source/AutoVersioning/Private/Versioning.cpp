@@ -1,7 +1,5 @@
 #include "Versioning.h"
 
-#include "GitUtility.h"
-
 Versioning::Versioning()
 {
 	git = new GitUtility("C:\\Users\\musta\\AppData\\Local\\Atlassian\\SourceTree\\git_local\\cmd\\git.exe", "C:\\Repos\\Online\\Tools\\MattRGeorge");
