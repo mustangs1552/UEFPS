@@ -8,7 +8,6 @@
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Text/STextBlock.h"
 #include "ToolMenus.h"
-#include "Versioning.h"
 
 static const FName AutoVersioningTabName("AutoVersioning");
 
@@ -55,8 +54,11 @@ void FAutoVersioningModule::ShutdownModule()
 
 TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
-	Versioning* ver = new Versioning();
-	FText WidgetText = FText::FromString(ver->Version().c_str());
+	versioning = new Versioning();
+	versioning->preReleaseText = "";
+	versioning->buildText = "";
+	string ver = versioning->VersionPreReleaseBuild();
+	FText WidgetText = FText::FromString((ver.empty()) ? "Unable to get version." : ver.c_str());
 
 	return SNew(SDockTab).TabRole(ETabRole::NomadTab)
 		[

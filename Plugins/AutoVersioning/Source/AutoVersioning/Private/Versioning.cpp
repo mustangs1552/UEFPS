@@ -2,7 +2,7 @@
 
 Versioning::Versioning()
 {
-	git = new GitUtility("C:\\Users\\musta\\AppData\\Local\\Atlassian\\SourceTree\\git_local\\cmd\\git.exe", "C:\\Repos\\Online\\Tools\\MattRGeorge");
+	git = new GitUtility("C:\\Users\\musta\\AppData\\Local\\Atlassian\\SourceTree\\git_local\\cmd\\git.exe", "C:\\Repos\\Online\\Games\\UEFPS");
 }
 
 string Versioning::Version()

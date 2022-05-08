@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
+#include "Versioning.h"
 
 class FToolBarBuilder;
 class FMenuBuilder;
@@ -11,6 +12,7 @@ class FMenuBuilder;
 class FAutoVersioningModule : public IModuleInterface
 {
 public:
+	Versioning* versioning;
 
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
