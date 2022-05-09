@@ -54,10 +54,7 @@ void FAutoVersioningModule::ShutdownModule()
 
 TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
-	versioning = new Versioning();
-	versioning->preReleaseText = "";
-	versioning->buildText = "";
-	string ver = versioning->VersionPreReleaseBuild();
+	string ver = ApplyVersionToConfig();
 	FText WidgetText = FText::FromString((ver.empty()) ? "Unable to get version." : ver.c_str());
 
 	return SNew(SDockTab).TabRole(ETabRole::NomadTab)
@@ -74,6 +71,29 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 void FAutoVersioningModule::PluginButtonClicked()
 {
 	FGlobalTabmanager::Get()->TryInvokeTab(AutoVersioningTabName);
+}
+
+string FAutoVersioningModule::GetVersion()
+{
+	versioning = new Versioning();
+	versioning->preReleaseText = "";
+	versioning->buildText = "";
+	return versioning->VersionPreReleaseBuild();
+}
+
+string FAutoVersioningModule::ApplyVersionToConfig()
+{
+	string ver = GetVersion();
+
+	if (!ver.empty())
+	{
+		FString gamePath = FString::Printf(TEXT("%sDefaultGame.ini"), *FPaths::SourceConfigDir());
+		if (FPlatformFileManager::Get().GetPlatformFile().IsReadOnly(*gamePath)) FPlatformFileManager::Get().GetPlatformFile().SetReadOnly(*gamePath, false);
+		GConfig->SetString(TEXT("/Script/EngineSettings.GeneralProjectSettings"), TEXT("ProjectVersion"), UTF8_TO_TCHAR(ver.c_str()), gamePath);
+		GConfig->Flush(false, gamePath);
+	}
+
+	return ver;
 }
 
 void FAutoVersioningModule::RegisterMenus()
