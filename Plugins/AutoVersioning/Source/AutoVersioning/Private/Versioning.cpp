@@ -27,3 +27,22 @@ string Versioning::VersionPreReleaseBuild()
 	if (!ver.empty() && !buildText.empty()) ver += "+" + buildText;
 	return ver;
 }
+
+FString Versioning::GetProjectSettingsVersion()
+{
+	FString gamePath = FString::Printf(TEXT("%sDefaultGame.ini"), *FPaths::SourceConfigDir());
+	if (FPlatformFileManager::Get().GetPlatformFile().IsReadOnly(*gamePath)) FPlatformFileManager::Get().GetPlatformFile().SetReadOnly(*gamePath, false);
+	FString ver;
+	GConfig->GetString(TEXT("/Script/EngineSettings.GeneralProjectSettings"), TEXT("ProjectVersion"), ver, gamePath);
+	return ver;
+}
+void Versioning::SetProjectSettingsVersion(string newVersion)
+{
+	if (!newVersion.empty())
+	{
+		FString gamePath = FString::Printf(TEXT("%sDefaultGame.ini"), *FPaths::SourceConfigDir());
+		if (FPlatformFileManager::Get().GetPlatformFile().IsReadOnly(*gamePath)) FPlatformFileManager::Get().GetPlatformFile().SetReadOnly(*gamePath, false);
+		GConfig->SetString(TEXT("/Script/EngineSettings.GeneralProjectSettings"), TEXT("ProjectVersion"), UTF8_TO_TCHAR(newVersion.c_str()), gamePath);
+		GConfig->Flush(false, gamePath);
+	}
+}

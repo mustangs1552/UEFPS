@@ -13,6 +13,8 @@ public:
 	string VersionPreRelease();
 	string VersionBuild();
 	string VersionPreReleaseBuild();
+	FString GetProjectSettingsVersion();
+	void SetProjectSettingsVersion(string newVersion);
 protected:
 	GitUtility* git;
 };

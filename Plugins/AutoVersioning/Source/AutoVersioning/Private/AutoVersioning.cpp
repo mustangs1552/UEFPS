@@ -84,15 +84,7 @@ string FAutoVersioningModule::GetVersion()
 string FAutoVersioningModule::ApplyVersionToConfig()
 {
 	string ver = GetVersion();
-
-	if (!ver.empty())
-	{
-		FString gamePath = FString::Printf(TEXT("%sDefaultGame.ini"), *FPaths::SourceConfigDir());
-		if (FPlatformFileManager::Get().GetPlatformFile().IsReadOnly(*gamePath)) FPlatformFileManager::Get().GetPlatformFile().SetReadOnly(*gamePath, false);
-		GConfig->SetString(TEXT("/Script/EngineSettings.GeneralProjectSettings"), TEXT("ProjectVersion"), UTF8_TO_TCHAR(ver.c_str()), gamePath);
-		GConfig->Flush(false, gamePath);
-	}
-
+	versioning->SetProjectSettingsVersion(ver);
 	return ver;
 }
 
