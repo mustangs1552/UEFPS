@@ -17,4 +17,7 @@ public:
 	void SetProjectSettingsVersion(string newVersion);
 protected:
 	GitUtility* git;
+
+	FString GetGitPath();
+	FString GetRepoPath();
 };
