@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "AutoVersioning.h"
 #include "AutoVersioningStyle.h"
 #include "AutoVersioningCommands.h"
@@ -55,15 +53,26 @@ void FAutoVersioningModule::ShutdownModule()
 TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
 	string ver = ApplyVersionToConfig();
-	FText WidgetText = FText::FromString((ver.empty()) ? "Unable to get version." : ver.c_str());
+	FText widgetText = FText::FromString((ver.empty()) ? "Unable to get version." : ver.c_str());
 
 	return SNew(SDockTab).TabRole(ETabRole::NomadTab)
 		[
-			// Put your tab content here!
-			SNew(SBox).HAlign(HAlign_Center).VAlign(VAlign_Center)
+			SNew(SVerticalBox)
+			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).Padding(10, 30)
 			[
-				SNew(STextBlock)
-				.Text(WidgetText)
+				SNew(SHorizontalBox)
+				+SHorizontalBox::Slot().AutoWidth()
+				[
+					SNew(STextBlock).Text(FText::FromString("Generated Version: "))
+				]
+				+SHorizontalBox::Slot().AutoWidth()
+				[
+					SNew(STextBlock).Text(widgetText)
+				]
+			]
+			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top)
+			[
+				SNew(SButton).Text(FText::FromString("Apply Version"))
 			]
 		];
 }
