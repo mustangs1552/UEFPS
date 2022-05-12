@@ -58,7 +58,7 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 	return SNew(SDockTab).TabRole(ETabRole::NomadTab)
 		[
 			SNew(SVerticalBox)
-			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(10)
+			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(5)
 			[
 				SNew(SHorizontalBox)
 				+SHorizontalBox::Slot().AutoWidth()
@@ -70,9 +70,25 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 					SNew(STextBlock).Text(widgetText)
 				]
 			]
-			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight()
+			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(5)
 			[
 				SNew(SButton).Text(FText::FromString("Apply Version")).OnClicked_Raw(this, &FAutoVersioningModule::ApplyVersionToConfig)
+			]
+			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(5, 20, 5, 5)
+			[
+				SNew(STextBlock).Text(FText::FromString("Settings"))
+			]
+			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(5)
+			[
+				SNew(SHorizontalBox)
+				+SHorizontalBox::Slot().AutoWidth()
+				[
+					SNew(STextBlock).Text(FText::FromString("Add Pre-Release: "))
+				]
+				+SHorizontalBox::Slot().AutoWidth()
+				[
+					SNew(SCheckBox)
+				]
 			]
 		];
 }
@@ -83,16 +99,21 @@ void FAutoVersioningModule::PluginButtonClicked()
 	FGlobalTabmanager::Get()->TryInvokeTab(AutoVersioningTabName);
 }
 
-string FAutoVersioningModule::GetVersion()
+void FAutoVersioningModule::UpdateVersioning() const
 {
-	versioning->preReleaseText = "";
-	versioning->buildText = "";
+	versioning->preReleaseText = (usePreReleaseText) ? preReleaseText : "";
+	versioning->buildText = (useBuildText) ? buildText : "";
+}
+
+string FAutoVersioningModule::GetVersion() const
+{
+	UpdateVersioning();
 	return versioning->VersionPreReleaseBuild();
 }
 
 FReply FAutoVersioningModule::ApplyVersionToConfig() const
 {
-	versioning->SetProjectSettingsVersion(versioning->VersionPreReleaseBuild());
+	versioning->SetProjectSettingsVersion(GetVersion());
 	return FReply::Handled();
 }
 
