@@ -52,13 +52,13 @@ void FAutoVersioningModule::ShutdownModule()
 
 TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
-	string ver = ApplyVersionToConfig();
+	string ver = GetVersion();
 	FText widgetText = FText::FromString((ver.empty()) ? "Unable to get version." : ver.c_str());
 
 	return SNew(SDockTab).TabRole(ETabRole::NomadTab)
 		[
 			SNew(SVerticalBox)
-			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).Padding(10, 30)
+			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(10)
 			[
 				SNew(SHorizontalBox)
 				+SHorizontalBox::Slot().AutoWidth()
@@ -70,31 +70,30 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 					SNew(STextBlock).Text(widgetText)
 				]
 			]
-			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top)
+			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight()
 			[
-				SNew(SButton).Text(FText::FromString("Apply Version"))
+				SNew(SButton).Text(FText::FromString("Apply Version")).OnClicked_Raw(this, &FAutoVersioningModule::ApplyVersionToConfig)
 			]
 		];
 }
 
 void FAutoVersioningModule::PluginButtonClicked()
 {
+	versioning = new Versioning();
 	FGlobalTabmanager::Get()->TryInvokeTab(AutoVersioningTabName);
 }
 
 string FAutoVersioningModule::GetVersion()
 {
-	versioning = new Versioning();
 	versioning->preReleaseText = "";
 	versioning->buildText = "";
 	return versioning->VersionPreReleaseBuild();
 }
 
-string FAutoVersioningModule::ApplyVersionToConfig()
+FReply FAutoVersioningModule::ApplyVersionToConfig() const
 {
-	string ver = GetVersion();
-	versioning->SetProjectSettingsVersion(ver);
-	return ver;
+	versioning->SetProjectSettingsVersion(versioning->VersionPreReleaseBuild());
+	return FReply::Handled();
 }
 
 void FAutoVersioningModule::RegisterMenus()

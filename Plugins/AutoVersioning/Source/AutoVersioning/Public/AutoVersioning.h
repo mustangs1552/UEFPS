@@ -20,7 +20,7 @@ public:
 	void PluginButtonClicked();
 
 	string GetVersion();
-	string ApplyVersionToConfig();
+	FReply ApplyVersionToConfig() const;
 private:
 
 	void RegisterMenus();
