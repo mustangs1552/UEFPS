@@ -11,10 +11,10 @@ class FAutoVersioningModule : public IModuleInterface
 {
 public:
 	Versioning* versioning;
-	bool usePreReleaseText;
-	string preReleaseText;
-	bool useBuildText;
-	string buildText;
+	mutable bool usePreReleaseText;
+	mutable string preReleaseText;
+	mutable bool useBuildText;
+	mutable string buildText;
 
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
@@ -25,7 +25,9 @@ public:
 
 	void UpdateVersioning() const;
 	string GetVersion() const;
-	FReply ApplyVersionToConfig() const;
+	FReply OnApplyVersionButtonClicked() const;
+	void OnUsePreReleaseTextCBStateChanged(ECheckBoxState inState) const;
+	void OnUseBuildTextCBStateChanged(ECheckBoxState inState) const;
 private:
 
 	void RegisterMenus();

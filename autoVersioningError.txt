@@ -1,0 +1,15 @@
+LoginId:c73ce4c44359dcd5909e148e90022e73
+EpicAccountId:6858b10bec3d4b44bbb76e7e021a70d1
+
+Unhandled Exception: EXCEPTION_ACCESS_VIOLATION reading address 0xffffffffffffffff
+
+UnrealEditor_AutoVersioning_patch_85!FAutoVersioningModule::`scalar deleting destructor'()
+UnrealEditor_Core
+UnrealEditor
+UnrealEditor
+UnrealEditor
+UnrealEditor
+UnrealEditor
+UnrealEditor
+kernel32
+ntdll

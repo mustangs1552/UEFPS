@@ -72,7 +72,7 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 			]
 			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(5)
 			[
-				SNew(SButton).Text(FText::FromString("Apply Version")).OnClicked_Raw(this, &FAutoVersioningModule::ApplyVersionToConfig)
+				SNew(SButton).Text(FText::FromString("Apply Version")).OnClicked(FOnClicked::CreateRaw(this, &FAutoVersioningModule::OnApplyVersionButtonClicked))
 			]
 			+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(5, 20, 5, 5)
 			[
@@ -83,11 +83,43 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 				SNew(SHorizontalBox)
 				+SHorizontalBox::Slot().AutoWidth()
 				[
-					SNew(STextBlock).Text(FText::FromString("Add Pre-Release: "))
+					SNew(SVerticalBox)
+					+SVerticalBox::Slot().HAlign(HAlign_Right).Padding(5)
+					[
+						SNew(STextBlock).Justification(ETextJustify::Right).Text(FText::FromString("Add Pre-Release Section"))
+					]
+					+SVerticalBox::Slot().HAlign(HAlign_Right).Padding(5)
+					[
+						SNew(STextBlock).Justification(ETextJustify::Right).Text(FText::FromString("Pre-Release Text"))
+					]
+					+SVerticalBox::Slot().HAlign(HAlign_Right).Padding(5)
+					[
+						SNew(STextBlock).Justification(ETextJustify::Right).Text(FText::FromString("Add Build Section"))
+					]
+					+SVerticalBox::Slot().HAlign(HAlign_Right).Padding(5)
+					[
+						SNew(STextBlock).Justification(ETextJustify::Right).Text(FText::FromString("Build Text"))
+					]
 				]
 				+SHorizontalBox::Slot().AutoWidth()
 				[
-					SNew(SCheckBox)
+					SNew(SVerticalBox)
+					+SVerticalBox::Slot().HAlign(HAlign_Left).Padding(5)
+					[
+						SNew(SCheckBox).HAlign(HAlign_Left).OnCheckStateChanged(FOnCheckStateChanged::CreateRaw(this, &FAutoVersioningModule::OnUsePreReleaseTextCBStateChanged))
+					]
+					+SVerticalBox::Slot().HAlign(HAlign_Left).Padding(5)
+					[
+						SNew(SEditableTextBox).MinDesiredWidth(150)
+					]
+					+ SVerticalBox::Slot().HAlign(HAlign_Left).Padding(5)
+					[
+						SNew(SCheckBox).HAlign(HAlign_Left).OnCheckStateChanged(FOnCheckStateChanged::CreateRaw(this, &FAutoVersioningModule::OnUseBuildTextCBStateChanged))
+					]
+					+SVerticalBox::Slot().HAlign(HAlign_Left).Padding(5)
+					[
+						SNew(SEditableTextBox).MinDesiredWidth(150)
+					]
 				]
 			]
 		];
@@ -111,10 +143,36 @@ string FAutoVersioningModule::GetVersion() const
 	return versioning->VersionPreReleaseBuild();
 }
 
-FReply FAutoVersioningModule::ApplyVersionToConfig() const
+FReply FAutoVersioningModule::OnApplyVersionButtonClicked() const
 {
 	versioning->SetProjectSettingsVersion(GetVersion());
 	return FReply::Handled();
+}
+
+void FAutoVersioningModule::OnUsePreReleaseTextCBStateChanged(ECheckBoxState inState) const
+{
+	switch (inState)
+	{
+		case ECheckBoxState::Checked:
+			usePreReleaseText = true;
+			break;
+		default:
+			usePreReleaseText = false;
+			break;
+	}
+}
+
+void FAutoVersioningModule::OnUseBuildTextCBStateChanged(ECheckBoxState inState) const
+{
+	switch (inState)
+	{
+	case ECheckBoxState::Checked:
+		useBuildText = true;
+		break;
+	default:
+		useBuildText = false;
+		break;
+	}
 }
 
 void FAutoVersioningModule::RegisterMenus()
