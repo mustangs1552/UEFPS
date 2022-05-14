@@ -7,6 +7,15 @@ Versioning::Versioning()
 	git = new GitUtility(string(TCHAR_TO_UTF8(*gitPath)), string(TCHAR_TO_UTF8(*repoPath)));
 }
 
+void Versioning::SetPreReleaseText(string text)
+{
+	preReleaseText = RemoveIllegalChars(text);
+}
+void Versioning::SetBuildText(string text)
+{
+	buildText = RemoveIllegalChars(text);
+}
+
 string Versioning::GetGitPath()
 {
 	return git->gitLoc;
@@ -69,4 +78,21 @@ FString Versioning::SetGitPath()
 FString Versioning::SetRepoPath()
 {
 	return FPaths::ProjectDir();
+}
+
+string Versioning::RemoveIllegalChars(string text)
+{
+	string validText;
+	for (int i = 0; i < text.length(); i++)
+	{
+		if (text[i] == '.' || text[i] == '-' || (text[i] >= '0' && text[i] <= '9') || (text[i] >= 'A' && text[i] <= 'Z') || (text[i] >= 'a' && text[i] <= 'z'))
+		{
+			if (text[i] == '.' && i - 1 >= 0)
+			{
+				if (text[i - 1] != '.') validText += text[i];
+			}
+			else validText += text[i];
+		}
+	}
+	return validText;
 }

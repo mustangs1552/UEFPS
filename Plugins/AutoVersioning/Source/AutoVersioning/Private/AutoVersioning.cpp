@@ -159,8 +159,8 @@ void FAutoVersioningModule::PluginButtonClicked()
 
 void FAutoVersioningModule::UpdateVersioning() const
 {
-	versioning->preReleaseText = (usePreReleaseText) ? preReleaseText : "";
-	versioning->buildText = (useBuildText) ? buildText : "";
+	versioning->SetPreReleaseText((usePreReleaseText) ? preReleaseText : "");
+	versioning->SetBuildText((useBuildText) ? buildText : "");
 }
 string FAutoVersioningModule::UpdateVersion() const
 {

@@ -5,9 +5,8 @@
 class AUTOVERSIONING_API Versioning
 {
 public:
-	string preReleaseText;
-	string buildText;
-
+	void SetPreReleaseText(string text);
+	void SetBuildText(string text);
 	string GetGitPath();
 	string GetRepoPath();
 	Versioning();
@@ -19,7 +18,10 @@ public:
 	void SetProjectSettingsVersion(string newVersion);
 protected:
 	GitUtility* git;
+	string preReleaseText;
+	string buildText;
 
 	FString SetGitPath();
 	FString SetRepoPath();
+	string RemoveIllegalChars(string text);
 };
