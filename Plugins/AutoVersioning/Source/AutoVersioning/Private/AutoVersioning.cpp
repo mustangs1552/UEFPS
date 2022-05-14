@@ -52,6 +52,9 @@ void FAutoVersioningModule::ShutdownModule()
 
 TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
+	string gitPath = versioning->GetGitPath();
+	string repoPath = versioning->GetRepoPath();
+
 	return SNew(SDockTab).TabRole(ETabRole::NomadTab).ShouldAutosize(true)
 	[
 		SNew(SVerticalBox)
@@ -143,11 +146,11 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 				SNew(SVerticalBox)
 				+SVerticalBox::Slot().HAlign(HAlign_Left).Padding(5)
 				[
-					SNew(STextBlock).Text(FText::FromString(versioning->GetGitPath().c_str()))
+					SNew(STextBlock).Text(FText::FromString((gitPath.empty()) ? "Unable to get Git path." : gitPath.c_str()))
 				]
 				+SVerticalBox::Slot().HAlign(HAlign_Left).Padding(5)
 				[
-					SNew(STextBlock).Text(FText::FromString(versioning->GetRepoPath().c_str()))
+					SNew(STextBlock).Text(FText::FromString((repoPath.empty()) ? "Unable to get repo path." : repoPath.c_str()))
 				]
 			]
 		]
@@ -157,8 +160,43 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 void FAutoVersioningModule::PluginButtonClicked()
 {
 	versioning = new Versioning();
+	LoadSettings();
 	UpdateVersion();
 	FGlobalTabmanager::Get()->TryInvokeTab(AutoVersioningTabName);
+}
+
+void FAutoVersioningModule::SaveSettings() const
+{
+	FString defaultGameIniPath = FString::Printf(TEXT("%sDefaultGame.ini"), *FPaths::SourceConfigDir());
+	if (FPlatformFileManager::Get().GetPlatformFile().IsReadOnly(*defaultGameIniPath)) FPlatformFileManager::Get().GetPlatformFile().SetReadOnly(*defaultGameIniPath, false);
+
+	GConfig->SetString(TEXT("/Script/AutoVersioningSettings"), TEXT("UsePreReleaseText"), UTF8_TO_TCHAR(((usePreReleaseText) ? "true" : "false")), defaultGameIniPath);
+	GConfig->SetString(TEXT("/Script/AutoVersioningSettings"), TEXT("PreReleaseText"), UTF8_TO_TCHAR(preReleaseText.c_str()), defaultGameIniPath);
+	GConfig->SetString(TEXT("/Script/AutoVersioningSettings"), TEXT("UseBuildText"), UTF8_TO_TCHAR(((useBuildText) ? "true" : "false")), defaultGameIniPath);
+	GConfig->SetString(TEXT("/Script/AutoVersioningSettings"), TEXT("BuildText"), UTF8_TO_TCHAR(buildText.c_str()), defaultGameIniPath);
+	
+	GConfig->Flush(false, defaultGameIniPath);
+}
+void FAutoVersioningModule::LoadSettings()
+{
+	FString defaultGameIniPath = FString::Printf(TEXT("%sDefaultGame.ini"), *FPaths::SourceConfigDir());
+	if (FPlatformFileManager::Get().GetPlatformFile().IsReadOnly(*defaultGameIniPath)) FPlatformFileManager::Get().GetPlatformFile().SetReadOnly(*defaultGameIniPath, false);
+
+	FString loadedUsePreReleaseText;
+	GConfig->GetString(TEXT("/Script/AutoVersioningSettings"), TEXT("UsePreReleaseText"), loadedUsePreReleaseText, defaultGameIniPath);
+	FString loadedPreReleaseText;
+	GConfig->GetString(TEXT("/Script/AutoVersioningSettings"), TEXT("PreReleaseText"), loadedPreReleaseText, defaultGameIniPath);
+	FString loadedUseBuildText;
+	GConfig->GetString(TEXT("/Script/AutoVersioningSettings"), TEXT("UseBuildText"), loadedUseBuildText, defaultGameIniPath);
+	FString loadedBuildText;
+	GConfig->GetString(TEXT("/Script/AutoVersioningSettings"), TEXT("BuildText"), loadedBuildText, defaultGameIniPath);
+
+	if (loadedUsePreReleaseText.ToLower() == "true") usePreReleaseText = true;
+	else usePreReleaseText = false;
+	preReleaseText = TCHAR_TO_UTF8(*loadedPreReleaseText);
+	if (loadedUseBuildText.ToLower() == "true") useBuildText = true;
+	else useBuildText = false;
+	buildText = TCHAR_TO_UTF8(*loadedBuildText);
 }
 
 void FAutoVersioningModule::UpdateVersioning() const
@@ -204,6 +242,7 @@ void FAutoVersioningModule::OnUsePreReleaseTextCBStateChanged(ECheckBoxState inS
 			break;
 	}
 	UpdateVersion();
+	SaveSettings();
 }
 FText FAutoVersioningModule::GetPreReleaseText() const
 {
@@ -213,6 +252,7 @@ void FAutoVersioningModule::OnPreReleaseTextETBTextCommitted(const FText& newTex
 {
 	preReleaseText = string(TCHAR_TO_UTF8(*newText.ToString()));
 	if (usePreReleaseText) UpdateVersion();
+	SaveSettings();
 }
 
 ECheckBoxState FAutoVersioningModule::GetUseBuildText() const
@@ -231,6 +271,7 @@ void FAutoVersioningModule::OnUseBuildTextCBStateChanged(ECheckBoxState inState)
 			break;
 	}
 	UpdateVersion();
+	SaveSettings();
 }
 FText FAutoVersioningModule::GetBuildText() const
 {
@@ -240,6 +281,7 @@ void FAutoVersioningModule::OnBuildTextETBTextCommitted(const FText& newText, ET
 {
 	buildText = string(TCHAR_TO_UTF8(*newText.ToString()));
 	if (useBuildText) UpdateVersion();
+	SaveSettings();
 }
 
 void FAutoVersioningModule::RegisterMenus()
