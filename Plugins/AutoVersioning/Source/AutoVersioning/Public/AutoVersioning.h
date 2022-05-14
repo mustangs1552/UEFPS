@@ -27,6 +27,7 @@ public:
 	void UpdateVersioning() const;
 	string UpdateVersion() const;
 	FText GetVersionText() const;
+	FReply OnUpdateButtonClicked() const;
 	FReply OnApplyVersionButtonClicked() const;
 	ECheckBoxState GetUsePreReleaseText() const;
 	void OnUsePreReleaseTextCBStateChanged(ECheckBoxState inState) const;

@@ -55,16 +55,20 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 	return SNew(SDockTab).TabRole(ETabRole::NomadTab).ShouldAutosize(true)
 	[
 		SNew(SVerticalBox)
-		+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(5, 10, 5, 5)
+		+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Center).AutoHeight().Padding(5, 10, 5, 5)
 		[
 			SNew(SHorizontalBox)
-			+SHorizontalBox::Slot().AutoWidth()
+			+SHorizontalBox::Slot().VAlign(VAlign_Center).AutoWidth()
 			[
 				SNew(STextBlock).Text(FText::FromString("Generated Version: "))
 			]
-			+SHorizontalBox::Slot().AutoWidth()
+			+SHorizontalBox::Slot().VAlign(VAlign_Center).AutoWidth()
 			[
 				SNew(STextBlock).Text_Raw(this, &FAutoVersioningModule::GetVersionText)
+			]
+			+SHorizontalBox::Slot().VAlign(VAlign_Center).AutoWidth().Padding(5, 0)
+			[
+				SNew(SButton).Text(FText::FromString("Update")).OnClicked_Raw(this, &FAutoVersioningModule::OnUpdateButtonClicked)
 			]
 		]
 		+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(5)
@@ -172,6 +176,11 @@ string FAutoVersioningModule::UpdateVersion() const
 FText FAutoVersioningModule::GetVersionText() const
 {
 	return FText::FromString((version.empty()) ? "Unable to get version." : version.c_str());
+}
+FReply FAutoVersioningModule::OnUpdateButtonClicked() const
+{
+	UpdateVersion();
+	return FReply::Handled();
 }
 FReply FAutoVersioningModule::OnApplyVersionButtonClicked() const
 {
