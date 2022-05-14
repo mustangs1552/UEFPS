@@ -2,9 +2,18 @@
 
 Versioning::Versioning()
 {
-	FString gitPath = GetGitPath();
-	FString repoPath = GetRepoPath();
+	FString gitPath = SetGitPath();
+	FString repoPath = SetRepoPath();
 	git = new GitUtility(string(TCHAR_TO_UTF8(*gitPath)), string(TCHAR_TO_UTF8(*repoPath)));
+}
+
+string Versioning::GetGitPath()
+{
+	return git->gitLoc;
+}
+string Versioning::GetRepoPath()
+{
+	return git->repoLoc;
 }
 
 string Versioning::Version()
@@ -49,7 +58,7 @@ void Versioning::SetProjectSettingsVersion(string newVersion)
 	}
 }
 
-FString Versioning::GetGitPath()
+FString Versioning::SetGitPath()
 {
 	FString sourceControlIniPath = FPaths::GeneratedConfigDir().Append("Windows/SourceControlSettings.ini");
 	FString gitPath;
@@ -57,7 +66,7 @@ FString Versioning::GetGitPath()
 
 	return gitPath;
 }
-FString Versioning::GetRepoPath()
+FString Versioning::SetRepoPath()
 {
 	return FPaths::ProjectDir();
 }

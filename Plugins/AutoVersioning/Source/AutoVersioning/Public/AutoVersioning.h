@@ -11,6 +11,7 @@ class FAutoVersioningModule : public IModuleInterface
 {
 public:
 	Versioning* versioning;
+	mutable string version;
 	mutable bool usePreReleaseText;
 	mutable string preReleaseText;
 	mutable bool useBuildText;
@@ -24,10 +25,17 @@ public:
 	void PluginButtonClicked();
 
 	void UpdateVersioning() const;
-	string GetVersion() const;
+	string UpdateVersion() const;
+	FText GetVersionText() const;
 	FReply OnApplyVersionButtonClicked() const;
+	ECheckBoxState GetUsePreReleaseText() const;
 	void OnUsePreReleaseTextCBStateChanged(ECheckBoxState inState) const;
+	FText GetPreReleaseText() const;
+	void OnPreReleaseTextETBTextCommitted(const FText& newText, ETextCommit::Type commitType);
+	ECheckBoxState GetUseBuildText() const;
 	void OnUseBuildTextCBStateChanged(ECheckBoxState inState) const;
+	FText GetBuildText() const;
+	void OnBuildTextETBTextCommitted(const FText& newText, ETextCommit::Type commitType);
 private:
 
 	void RegisterMenus();

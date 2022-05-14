@@ -8,10 +8,11 @@ using namespace std;
 class AUTOVERSIONING_API GitUtility
 {
 public:
+	const string gitLoc;
+	const string repoLoc;
+
 	GitUtility(string gitLocation, string repoLocation);
 	string GetGitRepoVersion();
 protected:
-	string gitLoc;
-	string repoLoc;
 	CMDLineUtility* cmdLineUtility;
 };

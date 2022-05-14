@@ -8,6 +8,8 @@ public:
 	string preReleaseText;
 	string buildText;
 
+	string GetGitPath();
+	string GetRepoPath();
 	Versioning();
 	string Version();
 	string VersionPreRelease();
@@ -18,6 +20,6 @@ public:
 protected:
 	GitUtility* git;
 
-	FString GetGitPath();
-	FString GetRepoPath();
+	FString SetGitPath();
+	FString SetRepoPath();
 };
