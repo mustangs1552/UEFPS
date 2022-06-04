@@ -21,7 +21,7 @@ protected:
 	string preReleaseText;
 	string buildText;
 
-	FString SetGitPath();
-	FString SetRepoPath();
+	FString FindGitPath();
+	FString FindRepoPath();
 	string RemoveIllegalChars(string text);
 };

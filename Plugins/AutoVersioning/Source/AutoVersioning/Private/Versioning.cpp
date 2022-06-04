@@ -2,8 +2,8 @@
 
 Versioning::Versioning()
 {
-	FString gitPath = SetGitPath();
-	FString repoPath = SetRepoPath();
+	FString gitPath = FindGitPath();
+	FString repoPath = FindRepoPath();
 	git = new GitUtility(string(TCHAR_TO_UTF8(*gitPath)), string(TCHAR_TO_UTF8(*repoPath)));
 }
 
@@ -67,15 +67,17 @@ void Versioning::SetProjectSettingsVersion(string newVersion)
 	}
 }
 
-FString Versioning::SetGitPath()
+FString Versioning::FindGitPath()
 {
-	FString sourceControlIniPath = FPaths::GeneratedConfigDir().Append("Windows/SourceControlSettings.ini");
+	FString configPath = FPaths::GeneratedConfigDir();
+	FString sourceControlIniPath;
+	FConfigCacheIni::LoadGlobalIniFile(sourceControlIniPath, TEXT("SourceControlSettings"), nullptr, false, false, true, true, *configPath);
 	FString gitPath;
 	GConfig->GetString(TEXT("GitSourceControl.GitSourceControlSettings"), TEXT("BinaryPath"), gitPath, sourceControlIniPath);
 
 	return gitPath;
 }
-FString Versioning::SetRepoPath()
+FString Versioning::FindRepoPath()
 {
 	return FPaths::ProjectDir();
 }
