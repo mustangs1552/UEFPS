@@ -26,8 +26,10 @@ public:
 
 	void SaveSettings() const;
 	void LoadSettings();
+	void SetupVersioning();
 	void UpdateVersioning() const;
 	string UpdateVersion() const;
+	string UpdateAndApplyVersion();
 	FText GetVersionText() const;
 	FReply OnUpdateButtonClicked() const;
 	FReply OnApplyVersionButtonClicked() const;

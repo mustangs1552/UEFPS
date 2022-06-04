@@ -159,9 +159,7 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 
 void FAutoVersioningModule::PluginButtonClicked()
 {
-	versioning = new Versioning();
-	LoadSettings();
-	UpdateVersion();
+	SetupVersioning();
 	FGlobalTabmanager::Get()->TryInvokeTab(AutoVersioningTabName);
 }
 
@@ -199,6 +197,13 @@ void FAutoVersioningModule::LoadSettings()
 	buildText = TCHAR_TO_UTF8(*loadedBuildText);
 }
 
+void FAutoVersioningModule::SetupVersioning()
+{
+	versioning = new Versioning();
+	LoadSettings();
+	UpdateVersion();
+}
+
 void FAutoVersioningModule::UpdateVersioning() const
 {
 	versioning->SetPreReleaseText((usePreReleaseText) ? preReleaseText : "");
@@ -209,6 +214,13 @@ string FAutoVersioningModule::UpdateVersion() const
 	UpdateVersioning();
 	version = versioning->VersionPreReleaseBuild();
 	return version;
+}
+string FAutoVersioningModule::UpdateAndApplyVersion()
+{
+	if (versioning == NULL) SetupVersioning();
+	string ver = UpdateVersion();
+	OnApplyVersionButtonClicked();
+	return ver;
 }
 
 FText FAutoVersioningModule::GetVersionText() const
