@@ -97,10 +97,6 @@
 		{
 			"Name": "ModelingToolsEditorMode",
 			"Enabled": true
-		},
-		{
-			"Name": "OnlineSubsystemEOS",
-			"Enabled": true
 		}
 	]
 }
