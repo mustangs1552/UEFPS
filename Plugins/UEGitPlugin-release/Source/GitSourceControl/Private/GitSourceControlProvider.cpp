@@ -175,7 +175,7 @@ void FGitSourceControlProvider::CheckRepositoryStatus()
 		}
 	};
 
-	if (FApp::IsUnattended() || IsRunningCommandlet())
+	if (FApp::IsUnattended() || IsRunningCommandlet() || true)
 	{
 		InitFunc();
 	}
