@@ -91,7 +91,8 @@ void FGitSourceControlProvider::CheckRepositoryStatus()
 
 	// Find the path to the root Git directory (if any, else uses the ProjectDir)
 	const FString PathToProjectDir = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir());
-	if (!GitSourceControlUtils::FindRootDirectory(PathToProjectDir, PathToRepositoryRoot))
+	PathToRepositoryRoot = PathToProjectDir;
+	if (!GitSourceControlUtils::FindRootDirectory(PathToProjectDir, PathToGitRoot))
 	{
 		UE_LOG(LogSourceControl, Error, TEXT("Failed to find valid Git root directory."));
 		bGitRepositoryFound = false;
@@ -103,11 +104,23 @@ void FGitSourceControlProvider::CheckRepositoryStatus()
 		bGitRepositoryFound = false;
 		return;
 	}
-	// Get user name & email (of the repository, else from the global Git config)
-	GitSourceControlUtils::GetUserConfig(PathToGitBinary, PathToRepositoryRoot, UserName, UserEmail);
 
 	TUniqueFunction<void()> InitFunc = [this]()
 	{
+		if (!IsInGameThread())
+		{
+			// Wait until the module interface is valid
+			IModuleInterface* GitModule;
+			do
+			{
+				GitModule = FModuleManager::Get().GetModule("GitSourceControl");
+				FPlatformProcess::Sleep(0.0f);
+			} while (!GitModule);
+		}
+
+		// Get user name & email (of the repository, else from the global Git config)
+		GitSourceControlUtils::GetUserConfig(PathToGitBinary, PathToRepositoryRoot, UserName, UserEmail);
+		
 		TMap<FString, FGitSourceControlState> States;
 		auto ConditionalRepoInit = [this, &States]()
 		{
@@ -175,7 +188,7 @@ void FGitSourceControlProvider::CheckRepositoryStatus()
 		}
 	};
 
-	if (FApp::IsUnattended() || IsRunningCommandlet() || true)
+	if (FApp::IsUnattended() || IsRunningCommandlet())
 	{
 		InitFunc();
 	}
@@ -488,6 +501,23 @@ bool FGitSourceControlProvider::UsesCheckout() const
 	return bUsingGitLfsLocking; // Git LFS Lock uses read-only state
 }
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+bool FGitSourceControlProvider::UsesFileRevisions() const
+{
+	return false;
+}
+
+TOptional<bool> FGitSourceControlProvider::IsAtLatestRevision() const
+{
+	return {};
+}
+
+TOptional<int> FGitSourceControlProvider::GetNumLocalChanges() const
+{
+	return {};
+}
+#endif
+
 TSharedPtr<IGitSourceControlWorker, ESPMode::ThreadSafe> FGitSourceControlProvider::CreateWorker(const FName& InOperationName) const
 {
 	const FGetGitSourceControlWorker* Operation = WorkersMap.Find(InOperationName);
@@ -638,7 +668,7 @@ ECommandResult::Type FGitSourceControlProvider::ExecuteSynchronousCommand(FGitSo
 	{
 		TaskText = FText::GetEmpty();
 	}
-	
+
 	int i = 0;
 
 	// Display the progress dialog if a string was provided
@@ -646,7 +676,7 @@ ECommandResult::Type FGitSourceControlProvider::ExecuteSynchronousCommand(FGitSo
 		// TODO: support cancellation?
 		//FScopedSourceControlProgress Progress(TaskText, FSimpleDelegate::CreateStatic(&Local::CancelCommand, &InCommand));
 		FScopedSourceControlProgress Progress(TaskText);
-		
+
 		// Issue the command asynchronously...
 		IssueCommand( InCommand );
 
@@ -717,7 +747,7 @@ ECommandResult::Type FGitSourceControlProvider::IssueCommand(FGitSourceControlCo
 
 bool FGitSourceControlProvider::QueryStateBranchConfig(const FString& ConfigSrc, const FString& ConfigDest)
 {
-	// Check similar preconditions to Perforce (valid src and dest), 
+	// Check similar preconditions to Perforce (valid src and dest),
 	if (ConfigSrc.Len() == 0 || ConfigDest.Len() == 0)
 	{
 		return false;
@@ -764,7 +794,7 @@ int32 FGitSourceControlProvider::GetStateBranchIndex(const FString& StateBranchN
 		// of the stream. i.e, promoted/stable changes are always up for consumption by this branch.
 		return INT32_MAX;
 	}
-	
+
 	// If we're not checking the current branch, then we don't need to do special handling.
 	// If it is not a status branch, there is no message
 	return StatusBranchNames.IndexOfByKey(StateBranchName);
