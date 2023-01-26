@@ -67,7 +67,7 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 			]
 			+SHorizontalBox::Slot().VAlign(VAlign_Center).AutoWidth()
 			[
-				SNew(STextBlock).Text_Raw(this, &FAutoVersioningModule::GetVersionText)
+				SNew(SEditableText).IsReadOnly(true).Text_Raw(this, &FAutoVersioningModule::GetVersionText)
 			]
 			+SHorizontalBox::Slot().VAlign(VAlign_Center).AutoWidth().Padding(5, 0)
 			[
