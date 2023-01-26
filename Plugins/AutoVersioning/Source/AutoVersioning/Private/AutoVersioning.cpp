@@ -69,15 +69,27 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 			[
 				SNew(SEditableText).IsReadOnly(true).Text_Raw(this, &FAutoVersioningModule::GetVersionText)
 			]
-			+SHorizontalBox::Slot().VAlign(VAlign_Center).AutoWidth().Padding(5, 0)
-			[
-				SNew(SButton).Text(FText::FromString("Update")).OnClicked_Raw(this, &FAutoVersioningModule::OnUpdateButtonClicked)
-			]
 		]
 		+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(5)
 		[
-			SNew(SButton).Text(FText::FromString("Apply Version")).OnClicked_Raw(this, &FAutoVersioningModule::OnApplyVersionButtonClicked)
+			SNew(SHorizontalBox)
+			+SHorizontalBox::Slot().AutoWidth()
+			[
+				SNew(SButton).Text(FText::FromString("Increment Major Version")).OnClicked_Raw(this, &FAutoVersioningModule::OnIncrementMajorVersionButtonClicked)
+			]
+			+SHorizontalBox::Slot().AutoWidth()
+			[
+				SNew(SButton).Text(FText::FromString("Increment Minor Version")).OnClicked_Raw(this, &FAutoVersioningModule::OnIncrementMinorVersionButtonClicked)
+			]
+			+SHorizontalBox::Slot().AutoWidth()
+			[
+				SNew(SButton).Text(FText::FromString("Remove Increments")).OnClicked_Raw(this, &FAutoVersioningModule::OnRemoveIncrementsButtonClicked)
+			]
 		]
+		/* +SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(5)
+		[
+			SNew(SButton).Text(FText::FromString("Apply Version")).OnClicked_Raw(this, &FAutoVersioningModule::OnApplyVersionButtonClicked)
+		]*/
 		+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(5, 20, 5, 5)
 		[
 			SNew(STextBlock).Text(FText::FromString("Settings"))
@@ -154,6 +166,22 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 				]
 			]
 		]
+		+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Center).AutoHeight().Padding(5)
+		[
+			SNew(SHorizontalBox)
+			+SHorizontalBox::Slot().VAlign(VAlign_Center).AutoWidth()
+			[
+				SNew(STextBlock).Text(FText::FromString("Version from Git: "))
+			]
+			+SHorizontalBox::Slot().VAlign(VAlign_Center).AutoWidth()
+			[
+				SNew(SEditableText).IsReadOnly(true).Text_Raw(this, &FAutoVersioningModule::GetGitVersionText)
+			]
+			+SHorizontalBox::Slot().VAlign(VAlign_Center).AutoWidth().Padding(5, 0)
+			[
+				SNew(SButton).Text(FText::FromString("Update")).OnClicked_Raw(this, &FAutoVersioningModule::OnUpdateButtonClicked)
+			]
+		]
 	];
 }
 
@@ -202,6 +230,7 @@ void FAutoVersioningModule::SetupVersioning()
 	versioning = new Versioning();
 	LoadSettings();
 	UpdateVersion();
+	gitVersion = versioning->GitVersion();
 }
 
 void FAutoVersioningModule::UpdateVersioning() const
@@ -213,6 +242,7 @@ string FAutoVersioningModule::UpdateVersion() const
 {
 	UpdateVersioning();
 	version = versioning->VersionPreReleaseBuild();
+	versioning->SetProjectSettingsVersion(version);
 	return version;
 }
 string FAutoVersioningModule::UpdateAndApplyVersion()
@@ -223,12 +253,34 @@ string FAutoVersioningModule::UpdateAndApplyVersion()
 	return ver;
 }
 
+FText FAutoVersioningModule::GetGitVersionText() const
+{
+	return FText::FromString((gitVersion.empty()) ? "Unable to get version." : gitVersion.c_str());
+}
 FText FAutoVersioningModule::GetVersionText() const
 {
 	return FText::FromString((version.empty()) ? "Unable to get version." : version.c_str());
 }
 FReply FAutoVersioningModule::OnUpdateButtonClicked() const
 {
+	gitVersion = versioning->GitVersion();
+	return FReply::Handled();
+}
+FReply FAutoVersioningModule::OnIncrementMajorVersionButtonClicked() const
+{
+	versioning->IncrementMajorVersion();
+	UpdateVersion();
+	return FReply::Handled();
+}
+FReply FAutoVersioningModule::OnIncrementMinorVersionButtonClicked() const
+{
+	versioning->IncrementMinorVersion();
+	UpdateVersion();
+	return FReply::Handled();
+}
+FReply FAutoVersioningModule::OnRemoveIncrementsButtonClicked() const
+{
+	versioning->RemoveIncrements();
 	UpdateVersion();
 	return FReply::Handled();
 }
@@ -263,7 +315,7 @@ FText FAutoVersioningModule::GetPreReleaseText() const
 void FAutoVersioningModule::OnPreReleaseTextETBTextCommitted(const FText& newText, ETextCommit::Type commitType)
 {
 	preReleaseText = string(TCHAR_TO_UTF8(*newText.ToString()));
-	if (usePreReleaseText) UpdateVersion();
+	UpdateVersion();
 	SaveSettings();
 }
 
@@ -292,7 +344,7 @@ FText FAutoVersioningModule::GetBuildText() const
 void FAutoVersioningModule::OnBuildTextETBTextCommitted(const FText& newText, ETextCommit::Type commitType)
 {
 	buildText = string(TCHAR_TO_UTF8(*newText.ToString()));
-	if (useBuildText) UpdateVersion();
+	UpdateVersion();
 	SaveSettings();
 }
 

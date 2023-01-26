@@ -5,6 +5,9 @@ Versioning::Versioning()
 	FString gitPath = FindGitPath();
 	FString repoPath = FindRepoPath();
 	git = new GitUtility(string(TCHAR_TO_UTF8(*gitPath)), string(TCHAR_TO_UTF8(*repoPath)));
+
+	majorVerIncrements = 0;
+	minorVerIncrements = 0;
 }
 
 void Versioning::SetPreReleaseText(string text)
@@ -25,9 +28,13 @@ string Versioning::GetRepoPath()
 	return git->repoLoc;
 }
 
-string Versioning::Version()
+string Versioning::GitVersion()
 {
 	return git->GetGitRepoVersion();
+}
+string Versioning::Version()
+{
+	return ApplyVersionIncrements(GitVersion());
 }
 string Versioning::VersionPreRelease()
 {
@@ -46,6 +53,20 @@ string Versioning::VersionPreReleaseBuild()
 	string ver = VersionPreRelease();
 	if (!ver.empty() && !buildText.empty()) ver += "+" + buildText;
 	return ver;
+}
+
+void Versioning::IncrementMajorVersion()
+{
+	majorVerIncrements++;
+}
+void Versioning::IncrementMinorVersion()
+{
+	minorVerIncrements++;
+}
+void Versioning::RemoveIncrements()
+{
+	majorVerIncrements = 0;
+	minorVerIncrements = 0;
 }
 
 FString Versioning::GetProjectSettingsVersion()
@@ -97,4 +118,34 @@ string Versioning::RemoveIllegalChars(string text)
 		}
 	}
 	return validText;
+}
+
+string Versioning::ApplyVersionIncrements(string ver)
+{
+	if (majorVerIncrements == 0 && minorVerIncrements == 0) return ver;
+
+	string sections[3];
+	int currSectionI = 0;
+	for (int i = 0; i < ver.length(); i++)
+	{
+		if (ver[i] == '.') currSectionI++;
+		else sections[currSectionI] += ver[i];
+	}
+
+	int majorVer = stoi(sections[0]);
+	int minorVer = stoi(sections[1]);
+	int patchVer = stoi(sections[2]);
+	if (majorVerIncrements > 0)
+	{
+		majorVer += majorVerIncrements;
+		minorVer = 0;
+		patchVer = 0;
+	}
+	else if (minorVerIncrements > 0)
+	{
+		minorVer += minorVerIncrements;
+		patchVer = 0;
+	}
+
+	return to_string(majorVer) + '.' + to_string(minorVer) + '.' + to_string(patchVer);
 }

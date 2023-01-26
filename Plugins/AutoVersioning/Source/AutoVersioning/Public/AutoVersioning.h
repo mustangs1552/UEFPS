@@ -11,6 +11,7 @@ class FAutoVersioningModule : public IModuleInterface
 {
 public:
 	Versioning* versioning;
+	mutable string gitVersion;
 	mutable string version;
 	mutable bool usePreReleaseText;
 	mutable string preReleaseText;
@@ -30,8 +31,12 @@ public:
 	void UpdateVersioning() const;
 	string UpdateVersion() const;
 	string UpdateAndApplyVersion();
+	FText GetGitVersionText() const;
 	FText GetVersionText() const;
 	FReply OnUpdateButtonClicked() const;
+	FReply OnIncrementMajorVersionButtonClicked() const;
+	FReply OnIncrementMinorVersionButtonClicked() const;
+	FReply OnRemoveIncrementsButtonClicked() const;
 	FReply OnApplyVersionButtonClicked() const;
 	ECheckBoxState GetUsePreReleaseText() const;
 	void OnUsePreReleaseTextCBStateChanged(ECheckBoxState inState) const;
