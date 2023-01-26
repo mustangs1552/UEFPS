@@ -1,4 +1,6 @@
 #!/bin/sh
+command -v git-lfs >/dev/null 2>&1 || { echo >&2 "\nThis repository is configured for Git LFS but 'git-lfs' was not found on your path. If you no longer wish to use Git LFS, remove this hook by deleting '.git/hooks/post-commit'.\n"; exit 2; }
+git lfs post-commit "$@"
 
 gitDescVer=$(git describe --tags --long --match "v[0-9]*")
 gitDescVer=${gitDescVer:1}
@@ -11,7 +13,7 @@ gitDescPatchVer=$(cut -d . -f 3 <<< $gitDescVer)
 
 echo "New project version from git: $gitDescVer"
 
-defGameIniFile="C:\Repos\Online\Games\UEFPS-OLD\Config\DefaultGame.ini"
+defGameIniFile=$(git rev-parse --show-toplevel)/Config/DefaultGame.ini
 defGameIniFileVer=$(awk "/ProjectVersion=.*/{print $2}" $defGameIniFile)
 defGameIniFileVer=${defGameIniFileVer:15}
 defGameIniFileMajorVer=$(cut -d . -f 1 <<< $defGameIniFileVer)
