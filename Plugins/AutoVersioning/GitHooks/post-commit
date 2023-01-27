@@ -31,7 +31,6 @@ then
     gitDescPatchVer="0"
     git tag "v$gitDescMajorVer.$gitDescMinorVer"
 else
-then
     gitDescPatchVer=$(($gitDescPatchVer + 1))
 fi
 
