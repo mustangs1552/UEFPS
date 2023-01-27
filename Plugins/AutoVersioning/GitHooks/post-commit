@@ -30,6 +30,9 @@ then
     gitDescMinorVer=$defGameIniFileMinorVer
     gitDescPatchVer="0"
     git tag "v$gitDescMajorVer.$gitDescMinorVer"
+else
+then
+    gitDescPatchVer=$(($gitDescPatchVer + 1))
 fi
 
 echo "New project version final: $gitDescMajorVer.$gitDescMinorVer.$gitDescPatchVer"
