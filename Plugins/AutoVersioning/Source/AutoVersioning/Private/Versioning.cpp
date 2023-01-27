@@ -122,7 +122,9 @@ string Versioning::RemoveIllegalChars(string text)
 
 string Versioning::ApplyVersionIncrements(string ver)
 {
-	string sections[3];
+	if (ver.empty()) return ver;
+
+	string sections[3] = { "", "", "" };
 	int currSectionI = 0;
 	for (int i = 0; i < ver.length(); i++)
 	{
@@ -133,18 +135,18 @@ string Versioning::ApplyVersionIncrements(string ver)
 	int majorVer = stoi(sections[0]);
 	int minorVer = stoi(sections[1]);
 	int patchVer = stoi(sections[2]);
-	if (majorVerIncrements == 0 && minorVerIncrements == 0) return to_string(majorVer) + '.' + to_string(minorVer) + '.' + to_string(patchVer + 1);
 	if (majorVerIncrements > 0)
 	{
 		majorVer += majorVerIncrements;
 		minorVer = 0;
 		patchVer = 0;
 	}
-	else
+	else if (minorVerIncrements > 0)
 	{
 		minorVer += minorVerIncrements;
 		patchVer = 0;
 	}
+	else patchVer += 1;
 
 	return to_string(majorVer) + '.' + to_string(minorVer) + '.' + to_string(patchVer);
 }

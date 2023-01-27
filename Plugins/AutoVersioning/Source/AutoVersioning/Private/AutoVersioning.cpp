@@ -86,10 +86,6 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 				SNew(SButton).Text(FText::FromString("Remove Increments")).OnClicked_Raw(this, &FAutoVersioningModule::OnRemoveIncrementsButtonClicked)
 			]
 		]
-		/* +SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(5)
-		[
-			SNew(SButton).Text(FText::FromString("Apply Version")).OnClicked_Raw(this, &FAutoVersioningModule::OnApplyVersionButtonClicked)
-		]*/
 		+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Top).AutoHeight().Padding(5, 20, 5, 5)
 		[
 			SNew(STextBlock).Text(FText::FromString("Settings"))
