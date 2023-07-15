@@ -1,4 +1,0 @@
-#!/bin/sh
-
-repoLoc=$(git rev-parse --show-toplevel)
-${repoLoc}/Plugins/AutoVersioning/VersioningTool.exe Git ${repoLoc} PreCommitMode MergeUEVersion ApplyTagPush ApplyUEProjectVersion
