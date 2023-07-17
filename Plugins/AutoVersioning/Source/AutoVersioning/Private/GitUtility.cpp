@@ -2,37 +2,9 @@
 
 #include <algorithm>
 
-GitUtility::GitUtility()
+GitUtility::GitUtility(string gitLocation, string repoLocation) : gitLoc(gitLocation), repoLoc(repoLocation)
 {
     cmdLineUtility = new CMDLineUtility();
-
-	gitLoc = string(TCHAR_TO_UTF8(*FindGitPath()));
-	repoLoc = string(TCHAR_TO_UTF8(*FindRepoPath()));
-}
-
-string GitUtility::GetGitLocation()
-{
-	return gitLoc;
-}
-
-string GitUtility::GetRepoLocation()
-{
-	return repoLoc;
-}
-
-FString GitUtility::FindGitPath()
-{
-	FString configPath = FPaths::GeneratedConfigDir();
-	FString sourceControlIniPath;
-	FConfigCacheIni::LoadGlobalIniFile(sourceControlIniPath, TEXT("SourceControlSettings"), nullptr, false, false, true, true, *configPath);
-	FString gitPath;
-	GConfig->GetString(TEXT("GitSourceControl.GitSourceControlSettings"), TEXT("BinaryPath"), gitPath, sourceControlIniPath);
-
-	return gitPath;
-}
-FString GitUtility::FindRepoPath()
-{
-	return FPaths::ProjectDir();
 }
 
 string GitUtility::GetGitRepoVersion()

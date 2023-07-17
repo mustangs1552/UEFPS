@@ -2,8 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
-#include "GitUtility.h"
-#include "IVersioning.h"
+#include "Versioning.h"
 
 class FToolBarBuilder;
 class FMenuBuilder;
@@ -11,14 +10,13 @@ class FMenuBuilder;
 class FAutoVersioningModule : public IModuleInterface
 {
 public:
-	GitUtility* gitUtility;
-	IVersioning* versioning;
+	Versioning* versioning;
 	mutable string gitVersion;
 	mutable string version;
 	mutable bool usePreReleaseText;
-	string preReleaseText;
+	mutable string preReleaseText;
 	mutable bool useBuildText;
-	string buildText;
+	mutable string buildText;
 
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;

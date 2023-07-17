@@ -1,24 +1,25 @@
 #pragma once
 
-#include "IVersioning.h"
 #include "GitUtility.h"
 
-class AUTOVERSIONING_API Versioning : public IVersioning
+class AUTOVERSIONING_API Versioning
 {
 public:
-	virtual void SetPreReleaseText(string text);
-	virtual void SetBuildText(string text);
-	Versioning(GitUtility* gitUtility);
-	virtual string GitVersion();
+	void SetPreReleaseText(string text);
+	void SetBuildText(string text);
+	string GetGitPath();
+	string GetRepoPath();
+	Versioning();
+	string GitVersion();
 	string Version();
 	string VersionPreRelease();
 	string VersionBuild();
-	virtual string VersionPreReleaseBuild();
-	virtual void IncrementMajorVersion();
-	virtual void IncrementMinorVersion();
-	virtual void RemoveIncrements();
+	string VersionPreReleaseBuild();
+	void IncrementMajorVersion();
+	void IncrementMinorVersion();
+	void RemoveIncrements();
 	FString GetProjectSettingsVersion();
-	virtual void SetProjectSettingsVersion(string newVersion);
+	void SetProjectSettingsVersion(string newVersion);
 protected:
 	GitUtility* git;
 	string preReleaseText;
@@ -26,6 +27,8 @@ protected:
 	int majorVerIncrements;
 	int minorVerIncrements;
 
+	FString FindGitPath();
+	FString FindRepoPath();
 	string RemoveIllegalChars(string text);
 	string ApplyVersionIncrements(string ver);
 };
