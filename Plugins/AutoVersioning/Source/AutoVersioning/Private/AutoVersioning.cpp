@@ -6,6 +6,7 @@
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Text/STextBlock.h"
 #include "ToolMenus.h"
+#include "Versioning.h"
 
 static const FName AutoVersioningTabName("Auto Versioning");
 
@@ -32,6 +33,8 @@ void FAutoVersioningModule::StartupModule()
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(AutoVersioningTabName, FOnSpawnTab::CreateRaw(this, &FAutoVersioningModule::OnSpawnPluginTab))
 		.SetDisplayName(LOCTEXT("FAutoVersioningTabTitle", "Auto Versioning"))
 		.SetMenuType(ETabSpawnerMenuType::Hidden);
+
+	gitUtility = new GitUtility();
 }
 
 void FAutoVersioningModule::ShutdownModule()
@@ -52,8 +55,8 @@ void FAutoVersioningModule::ShutdownModule()
 
 TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
-	string gitPath = versioning->GetGitPath();
-	string repoPath = versioning->GetRepoPath();
+	string gitPath = gitUtility->repoLoc;
+	string repoPath = gitUtility->gitLoc;
 
 	return SNew(SDockTab).TabRole(ETabRole::NomadTab).ShouldAutosize(true)
 	[
@@ -213,17 +216,15 @@ void FAutoVersioningModule::LoadSettings()
 	FString loadedBuildText;
 	GConfig->GetString(TEXT("/Script/AutoVersioningSettings"), TEXT("BuildText"), loadedBuildText, defaultGameIniPath);
 
-	if (loadedUsePreReleaseText.ToLower() == "true") usePreReleaseText = true;
-	else usePreReleaseText = false;
+	usePreReleaseText = loadedUsePreReleaseText.ToLower() == "true";
 	preReleaseText = TCHAR_TO_UTF8(*loadedPreReleaseText);
-	if (loadedUseBuildText.ToLower() == "true") useBuildText = true;
-	else useBuildText = false;
+	useBuildText = loadedUseBuildText.ToLower() == "true";
 	buildText = TCHAR_TO_UTF8(*loadedBuildText);
 }
 
 void FAutoVersioningModule::SetupVersioning()
 {
-	versioning = new Versioning();
+	versioning = new Versioning(gitUtility);
 	LoadSettings();
 	UpdateVersion();
 	gitVersion = versioning->GitVersion();
