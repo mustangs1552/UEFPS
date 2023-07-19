@@ -39,3 +39,7 @@ void IVersioning::SetProjectSettingsVersion(string version)
 {
 
 }
+void IVersioning::ResetProjectSettingsVersion()
+{
+
+}

@@ -3,7 +3,6 @@
 Versioning::Versioning(GitUtility* gitUtility)
 {
 	git = gitUtility;
-
 	majorVerIncrements = 0;
 	minorVerIncrements = 0;
 }

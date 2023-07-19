@@ -6,7 +6,7 @@
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Text/STextBlock.h"
 #include "ToolMenus.h"
-#include "Versioning.h"
+#include "VersioningTool.h"
 
 static const FName AutoVersioningTabName("Auto Versioning");
 
@@ -181,6 +181,18 @@ TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs
 				SNew(SButton).Text(FText::FromString("Update")).OnClicked_Raw(this, &FAutoVersioningModule::OnUpdateButtonClicked)
 			]
 		]
+		+SVerticalBox::Slot().HAlign(HAlign_Center).VAlign(VAlign_Center).AutoHeight().Padding(5)
+		[
+			SNew(SHorizontalBox)
+			+SHorizontalBox::Slot().VAlign(VAlign_Center).AutoWidth().Padding(5, 0)
+			[
+				SNew(SButton).Text(FText::FromString("Save Generated Version")).OnClicked_Raw(this, &FAutoVersioningModule::OnApplyVersionButtonClicked)
+			]
+			+SHorizontalBox::Slot().AutoWidth()
+			[
+				SNew(SButton).Text(FText::FromString("Reset Saved Version")).OnClicked_Raw(this, &FAutoVersioningModule::OnResetVersionButtonClicked)
+			]
+		]
 	];
 }
 
@@ -192,7 +204,7 @@ void FAutoVersioningModule::PluginButtonClicked()
 
 void FAutoVersioningModule::SaveSettings() const
 {
-	FString defaultGameIniPath = FString::Printf(TEXT("%sDefaultGame.ini"), *FPaths::SourceConfigDir());
+	FString defaultGameIniPath = FConfigCacheIni::NormalizeConfigIniPath(FString::Printf(TEXT("%sDefaultGame.ini"), *FPaths::SourceConfigDir()));
 	if (FPlatformFileManager::Get().GetPlatformFile().IsReadOnly(*defaultGameIniPath)) FPlatformFileManager::Get().GetPlatformFile().SetReadOnly(*defaultGameIniPath, false);
 
 	GConfig->SetString(TEXT("/Script/AutoVersioningSettings"), TEXT("UsePreReleaseText"), UTF8_TO_TCHAR(((usePreReleaseText) ? "true" : "false")), defaultGameIniPath);
@@ -204,7 +216,7 @@ void FAutoVersioningModule::SaveSettings() const
 }
 void FAutoVersioningModule::LoadSettings()
 {
-	FString defaultGameIniPath = FString::Printf(TEXT("%sDefaultGame.ini"), *FPaths::SourceConfigDir());
+	FString defaultGameIniPath = FConfigCacheIni::NormalizeConfigIniPath(FString::Printf(TEXT("%sDefaultGame.ini"), *FPaths::SourceConfigDir()));
 	if (FPlatformFileManager::Get().GetPlatformFile().IsReadOnly(*defaultGameIniPath)) FPlatformFileManager::Get().GetPlatformFile().SetReadOnly(*defaultGameIniPath, false);
 
 	FString loadedUsePreReleaseText;
@@ -224,7 +236,7 @@ void FAutoVersioningModule::LoadSettings()
 
 void FAutoVersioningModule::SetupVersioning()
 {
-	versioning = new Versioning(gitUtility);
+	versioning = new VersioningTool(gitUtility);
 	LoadSettings();
 	UpdateVersion();
 	gitVersion = versioning->GitVersion();
@@ -239,7 +251,6 @@ string FAutoVersioningModule::UpdateVersion() const
 {
 	UpdateVersioning();
 	version = versioning->VersionPreReleaseBuild();
-	versioning->SetProjectSettingsVersion(version);
 	return version;
 }
 string FAutoVersioningModule::UpdateAndApplyVersion()
@@ -284,6 +295,11 @@ FReply FAutoVersioningModule::OnRemoveIncrementsButtonClicked() const
 FReply FAutoVersioningModule::OnApplyVersionButtonClicked() const
 {
 	versioning->SetProjectSettingsVersion(version);
+	return FReply::Handled();
+}
+FReply FAutoVersioningModule::OnResetVersionButtonClicked() const
+{
+	versioning->ResetProjectSettingsVersion();
 	return FReply::Handled();
 }
 

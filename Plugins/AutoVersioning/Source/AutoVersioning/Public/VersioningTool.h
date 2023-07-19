@@ -1,13 +1,13 @@
 #pragma once
 
-#include <string>
+#include "IVersioning.h"
+#include "GitUtility.h"
+#include "VersioningToolUtility.h"
 
-using namespace std;
-
-class AUTOVERSIONING_API IVersioning
+class AUTOVERSIONING_API VersioningTool : public IVersioning
 {
 public:
-	virtual ~IVersioning();
+	VersioningTool(GitUtility* gitUtility);
 
 	virtual string GitVersion();
 	virtual string VersionPreReleaseBuild();
@@ -20,4 +20,10 @@ public:
 
 	virtual void SetProjectSettingsVersion(string version);
 	virtual void ResetProjectSettingsVersion();
+protected:
+	VersioningToolUtility* verToolUtility;
+	bool incrementMajor = false;
+	bool incrementMinor = false;
+	string preReleaseText = "";
+	string buildText = "";
 };

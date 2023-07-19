@@ -40,6 +40,7 @@ public:
 	FReply OnIncrementMinorVersionButtonClicked() const;
 	FReply OnRemoveIncrementsButtonClicked() const;
 	FReply OnApplyVersionButtonClicked() const;
+	FReply OnResetVersionButtonClicked() const;
 	ECheckBoxState GetUsePreReleaseText() const;
 	void OnUsePreReleaseTextCBStateChanged(ECheckBoxState inState) const;
 	FText GetPreReleaseText() const;
