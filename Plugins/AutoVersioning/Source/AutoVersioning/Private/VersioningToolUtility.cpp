@@ -9,7 +9,7 @@ VersioningToolUtility::VersioningToolUtility(GitUtility* gitUtility)
 string VersioningToolUtility::GitCMD(vector<GitCMDArgTypes> args, string preReleaseText, string buildText)
 {
 	string cdCMD = "cd \"" + git->repoLoc + "\"";
-	string toolCMD = "\"Plugins\\AutoVersioning\\VersioningTool.exe\" Git \"" + git->repoLoc + "\" ";
+	string toolCMD = "\"Plugins\\AutoVersioning\\VersioningTool.exe\" Git \"RepoPath=" + git->repoLoc + "\" ";
 	for (GitCMDArgTypes arg : args) toolCMD += gitCMDArgTypeNames[arg] + " ";
 	toolCMD += '-' + preReleaseText + " " + '+' + buildText;
 
