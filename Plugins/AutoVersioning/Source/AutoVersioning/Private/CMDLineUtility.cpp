@@ -16,7 +16,6 @@ string CMDLineUtility::ExecCMD(string cmd)
     _pclose(pipe);
     return result;*/
 
-    UE_LOG(LogTemp, Warning, TEXT("Starting CMD..."));
     HANDLE pipeRead = NULL;
     HANDLE pipeWrite = NULL;
     SECURITY_ATTRIBUTES secAtts = { sizeof(SECURITY_ATTRIBUTES) };
@@ -24,17 +23,22 @@ string CMDLineUtility::ExecCMD(string cmd)
     secAtts.lpSecurityDescriptor = NULL;
     if (!CreatePipe(&pipeRead, &pipeWrite, &secAtts, 0)) return "";
 
-    STARTUPINFOW startupInfo = { sizeof(STARTUPINFOW) };
+    STARTUPINFOA startupInfo = { sizeof(STARTUPINFOA) };
     PROCESS_INFORMATION procInfo = { 0 };
     startupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
     startupInfo.wShowWindow = SW_HIDE;
     startupInfo.hStdOutput = pipeWrite;
     startupInfo.hStdError = pipeWrite;
-    bool success = ::CreateProcessW(LPCWSTR("C:\\windows\\system32\\cmd.exe"), (LPWSTR)cmd.c_str(), NULL, NULL, true, CREATE_NEW_CONSOLE, NULL, NULL, &startupInfo, &procInfo);
-    if (success == false) return "Error: " + to_string(::GetLastError());
+    bool success = ::CreateProcessA(NULL, (LPSTR)("C:\\windows\\system32\\cmd.exe " + cmd).c_str(), NULL, NULL, true, CREATE_NEW_CONSOLE, NULL, NULL, &startupInfo, &procInfo);
+    if (success == false)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Error: C-%s."), UTF8_TO_TCHAR(to_string(::GetLastError()).c_str()));
+        return "Error: C-" + to_string(::GetLastError());
+    }
 
     string result = "";
     bool procEnded = false;
+    bool r1Failed = false;
     for (; !procEnded;)
     {
         procEnded = WaitForSingleObject(procInfo.hProcess, 50) == WAIT_OBJECT_0;
@@ -45,19 +49,27 @@ string CMDLineUtility::ExecCMD(string cmd)
             DWORD dwRead = 0;
             DWORD dwAvail = 0;
 
-            if (::PeekNamedPipe(pipeRead, NULL, 0, NULL, &dwAvail, NULL)) break;
-            if (!dwAvail) break;
-            if (!::ReadFile(pipeRead, buff, min(sizeof(buff) - 1, dwAvail), &dwRead, NULL) || !dwRead) break;
+            if (::PeekNamedPipe(pipeRead, NULL, 0, NULL, &dwAvail, NULL)) r1Failed = true;
+            if (!dwAvail)
+            {
+                UE_LOG(LogTemp, Error, TEXT("Error: R-2."));
+                break;
+            }
+            if (!::ReadFile(pipeRead, buff, min(sizeof(buff) - 1, dwAvail), &dwRead, NULL) || !dwRead)
+            {
+                UE_LOG(LogTemp, Error, TEXT("Error: R-3."));
+                break;
+            }
 
             buff[dwRead] = 0;
             result += buff;
         }
     }
+    if (r1Failed) UE_LOG(LogTemp, Error, TEXT("Error: R-1: %s"), result.c_str());
 
     CloseHandle(pipeWrite);
     CloseHandle(pipeRead);
     CloseHandle(procInfo.hProcess);
     CloseHandle(procInfo.hThread);
-    UE_LOG(LogTemp, Warning, TEXT("Finished CMD: %s"), UTF8_TO_TCHAR(result.c_str()));
     return result;
 }
