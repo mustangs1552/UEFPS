@@ -16,28 +16,48 @@ string CMDLineUtility::ExecCMD(string cmd)
     _pclose(pipe);
     return result;*/
 
-    HANDLE stdInHandles[2];
-    HANDLE stdOutHandles[2];
-    HANDLE stdErrHandles[2];
-    CreatePipe(&stdInHandles[0], &stdInHandles[1], NULL, 4096);
-    CreatePipe(&stdOutHandles[0], &stdOutHandles[1], NULL, 4096);
-    CreatePipe(&stdErrHandles[0], &stdErrHandles[1], NULL, 4096);
+    UE_LOG(LogTemp, Warning, TEXT("Starting CMD..."));
+    HANDLE pipeRead = NULL;
+    HANDLE pipeWrite = NULL;
+    SECURITY_ATTRIBUTES secAtts = { sizeof(SECURITY_ATTRIBUTES) };
+    secAtts.bInheritHandle = true;
+    secAtts.lpSecurityDescriptor = NULL;
+    if (!CreatePipe(&pipeRead, &pipeWrite, &secAtts, 0)) return "";
 
-    STARTUPINFOA startupInfo = { 0 };
+    STARTUPINFOW startupInfo = { sizeof(STARTUPINFOW) };
     PROCESS_INFORMATION procInfo = { 0 };
     startupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
     startupInfo.wShowWindow = SW_HIDE;
-    startupInfo.hStdInput = stdInHandles[0];
-    startupInfo.hStdOutput = stdOutHandles[1];
-    startupInfo.hStdError = stdErrHandles[1];
-    bool result = ::CreateProcessA("C:\\windows\\system32\\cmd.exe", const_cast<char*>(cmd.c_str()), NULL, NULL, false, 0, NULL, NULL, &startupInfo, &procInfo);
-    if (result == false)
+    startupInfo.hStdOutput = pipeWrite;
+    startupInfo.hStdError = pipeWrite;
+    bool success = ::CreateProcessW(LPCWSTR("C:\\windows\\system32\\cmd.exe"), (LPWSTR)cmd.c_str(), NULL, NULL, true, CREATE_NEW_CONSOLE, NULL, NULL, &startupInfo, &procInfo);
+    if (success == false) return "Error: " + to_string(::GetLastError());
+
+    string result = "";
+    bool procEnded = false;
+    for (; !procEnded;)
     {
-        DWORD error = ::GetLastError();
-        return "Error: " + to_string(error);
+        procEnded = WaitForSingleObject(procInfo.hProcess, 50) == WAIT_OBJECT_0;
+
+        for (;;)
+        {
+            char buff[1024];
+            DWORD dwRead = 0;
+            DWORD dwAvail = 0;
+
+            if (::PeekNamedPipe(pipeRead, NULL, 0, NULL, &dwAvail, NULL)) break;
+            if (!dwAvail) break;
+            if (!::ReadFile(pipeRead, buff, min(sizeof(buff) - 1, dwAvail), &dwRead, NULL) || !dwRead) break;
+
+            buff[dwRead] = 0;
+            result += buff;
+        }
     }
 
-    LPDWORD returnVal = new DWORD[1];
-    ::GetExitCodeProcess(procInfo.hProcess, returnVal);
-    return to_string(returnVal[0]);
+    CloseHandle(pipeWrite);
+    CloseHandle(pipeRead);
+    CloseHandle(procInfo.hProcess);
+    CloseHandle(procInfo.hThread);
+    UE_LOG(LogTemp, Warning, TEXT("Finished CMD: %s"), UTF8_TO_TCHAR(result.c_str()));
+    return result;
 }
