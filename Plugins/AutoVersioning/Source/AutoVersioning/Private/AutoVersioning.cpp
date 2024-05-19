@@ -55,8 +55,8 @@ void FAutoVersioningModule::ShutdownModule()
 
 TSharedRef<SDockTab> FAutoVersioningModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
-	string gitPath = gitUtility->repoLoc;
-	string repoPath = gitUtility->gitLoc;
+	string gitPath = gitUtility->gitLoc;
+	string repoPath = gitUtility->repoLoc;
 
 	return SNew(SDockTab).TabRole(ETabRole::NomadTab).ShouldAutosize(true)
 	[
