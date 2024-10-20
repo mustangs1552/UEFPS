@@ -13,6 +13,6 @@ class GENERALBLUEPRINTFUNCTIONLIBRARY_API UProjectSettings : public UBlueprintFu
 	GENERATED_BODY()
 	
 	public:
-		UFUNCTION (BlueprintPure)
+		UFUNCTION(BlueprintPure, Category = "Project Settings")
 		static FString GetProjectVersion ();
 };
