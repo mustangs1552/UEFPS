@@ -38,6 +38,10 @@
 		{
 			"Name": "UEToolkitBPFL",
 			"Enabled": true
+		},
+		{
+			"Name": "GeneralBlueprintFunctionLibrary",
+			"Enabled": false
 		}
 	]
 }
