@@ -42,6 +42,15 @@
 		{
 			"Name": "GeneralBlueprintFunctionLibrary",
 			"Enabled": false
+		},
+		{
+			"Name": "Fab",
+			"Enabled": false,
+			"SupportedTargetPlatforms": [
+				"Win64",
+				"Mac",
+				"Linux"
+			]
 		}
 	]
 }
