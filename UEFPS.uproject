@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.4",
+	"EngineAssociation": "5.5",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -24,26 +24,6 @@
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/af157f773f084ca89036cd7bc03fb416"
 		},
 		{
-			"Name": "VisualStudioTools",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/362651520df94e4fa65492dbcba44ae2",
-			"SupportedTargetPlatforms": [
-				"Win64"
-			]
-		},
-		{
-			"Name": "AutoVersioning",
-			"Enabled": false
-		},
-		{
-			"Name": "UEToolkitBPFL",
-			"Enabled": true
-		},
-		{
-			"Name": "GeneralBlueprintFunctionLibrary",
-			"Enabled": false
-		},
-		{
 			"Name": "Fab",
 			"Enabled": false,
 			"SupportedTargetPlatforms": [
@@ -51,6 +31,10 @@
 				"Mac",
 				"Linux"
 			]
+		},
+		{
+			"Name": "UEToolkitBPFL",
+			"Enabled": true
 		}
 	]
 }
