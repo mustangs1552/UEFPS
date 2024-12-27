@@ -35,6 +35,10 @@
 		{
 			"Name": "UEToolkitBPFL",
 			"Enabled": true
+		},
+		{
+			"Name": "RBMGen",
+			"Enabled": true
 		}
 	]
 }
